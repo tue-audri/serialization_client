@@ -1,0 +1,20 @@
+topics:
+  - name: /vehicle/status/gear_status
+    type: autoware_vehicle_msgs.msg.GearReport
+    serializer: gear_report_to_json
+    mqtt_topic: pingpong/gear_report 
+
+  - name: /vehicle/status/velocity_status
+    type: autoware_vehicle_msgs.msg.VelocityReport
+    serializer: velocity_report_to_json
+    mqtt_topic: pingpong/velocity_report
+
+  - name: /localization/kinematic_state
+    type: nav_msgs.msg.Odometry
+    serializer: kinematic_report_to_json
+    mqtt_topic: pingpong/kinematic_state
+
+  - name: /perception/traffic_light_recognition/external/traffic_signals
+    type: autoware_perception_msgs.msg.TrafficLightGroupArray
+    serializer: traffic_light_group_array_to_json
+    mqtt_topic: pingpong/external/traffic_light_groups

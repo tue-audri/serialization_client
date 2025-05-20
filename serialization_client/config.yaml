@@ -9,6 +9,16 @@ topics:
     serializer: velocity_report_to_json
     mqtt_topic: pingpong/velocity_report
 
+  - name: /vehicle/status/actuation_status
+    type: tier4_vehicle_msgs.msg.ActuationStatusStamped
+    serializer: actuation_report_to_json
+    mqtt_topic: pingpong/actuation_report
+  
+  - name: /vehicle/status/steering_status
+    type: autoware_vehicle_msgs.msg.SteeringReport
+    serializer: steering_report_to_json
+    mqtt_topic: pingpong/steering_report
+
   - name: /localization/kinematic_state
     type: nav_msgs.msg.Odometry
     serializer: kinematic_report_to_json

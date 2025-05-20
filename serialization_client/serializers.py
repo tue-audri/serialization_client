@@ -1,6 +1,7 @@
-from autoware_vehicle_msgs.msg import GearReport, VelocityReport
+from autoware_vehicle_msgs.msg import GearReport, VelocityReport, SteeringReport
 from nav_msgs.msg import Odometry
 from autoware_perception_msgs.msg import TrafficLightGroupArray, TrafficLightGroup,TrafficLightElement
+from tier4_vehicle_msgs.msg import ActuationStatusStamped
 import json
 
 # Convert Gear Report Object to json
@@ -92,3 +93,36 @@ def traffic_light_group_array_to_json(msg: TrafficLightGroupArray)->str:
             for group in msg.traffic_light_groups
         ]
     }, indent=3)     
+
+# Convert Actuation Status
+def actuation_report_to_json(msg: ActuationStatusStamped)->str:
+    return json.dumps({
+        "header" : {
+            "stamp": {
+                "sec": msg.header.stamp.sec,
+                "nanosec": msg.header.stamp.nanosec
+            },
+            "frame_id": msg.header.frame_id
+        },
+        "status":{
+            "accel_status": msg.status.accel_status,
+            "brake_status": msg.status.brake_status,
+            "steer_status": msg.status.steer_status 
+        }
+    }, indent=3)
+
+# Convert Steering Status
+def steering_report_to_json(msg: SteeringReport)->str:
+    return json.dumps({
+        "stamp": {
+            "sec": msg.stamp.sec,
+            "nanosec": msg.stamp.nanosec
+        },
+        "steering_tire_angle": msg.steering_tire_angle
+    }, indent=2)
+
+# Convert Control Mode
+
+# Convert Hazard Light Status
+
+# Convert Turn Indicator Status

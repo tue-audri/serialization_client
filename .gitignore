@@ -1,0 +1,14 @@
+# Ignore build, install, and log directories
+build/
+install/
+log/
+
+# VS Code settings
+.vscode/settings.json
+
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd

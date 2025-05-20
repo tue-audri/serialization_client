@@ -1,7 +1,7 @@
-from autoware_vehicle_msgs.msg import GearReport, VelocityReport, SteeringReport
+from autoware_vehicle_msgs.msg import GearReport, VelocityReport, SteeringReport, ControlModeReport, HazardLightsReport, TurnIndicatorsReport
 from nav_msgs.msg import Odometry
 from autoware_perception_msgs.msg import TrafficLightGroupArray, TrafficLightGroup,TrafficLightElement
-from tier4_vehicle_msgs.msg import ActuationStatusStamped
+from tier4_vehicle_msgs.msg import ActuationStatusStamped, BatteryStatus
 import json
 
 # Convert Gear Report Object to json
@@ -122,7 +122,32 @@ def steering_report_to_json(msg: SteeringReport)->str:
     }, indent=2)
 
 # Convert Control Mode
+def control_mode_report_to_json(msg: ControlModeReport)->str:
+    return json.dumps({
+        "stamp": {
+            "sec": msg.stamp.sec,
+            "nanosec": msg.stamp.nanosec
+        },
+        "mode": msg.mode
+    }, indent=2)
 
 # Convert Hazard Light Status
-
+def hazard_lights_report_to_json(msg: HazardLightsReport)->str:
+    return json.dumps({
+        "stamp": {
+            "sec": msg.stamp.sec,
+            "nanosec": msg.stamp.nanosec
+        },
+        "report": msg.report
+    }, indent=2)
 # Convert Turn Indicator Status
+def turn_indicators_report_to_json(msg: TurnIndicatorsReport)->str:
+    return json.dumps({
+        "stamp": {
+            "sec": msg.stamp.sec,
+            "nanosec": msg.stamp.nanosec
+        },
+        "report": msg.report
+    }, indent=2)
+
+# Convert Battery Status

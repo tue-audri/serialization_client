@@ -1,3 +1,5 @@
+import os
+import sys
 import rclpy
 from rclpy.node import Node
 import paho.mqtt.client as mqtt
@@ -5,12 +7,14 @@ import yaml
 import json
 import importlib
 from serialization_client.deserializers import hybrid_deserialize
+from ament_index_python.packages import get_package_share_directory
 
 class DynamicDeserialize(Node):
-    def __init__(self, config_file = '/home/saurabh/Workspaces/serialization_client/serialization_client/config_mqtt_to_ros_bridge.yaml'):
+    def __init__(self, config_file):
         super().__init__('dynamic_json_deserializer_node')
 
         # Load config
+        
         with open(config_file, 'r') as file:
             self.config = yaml.safe_load(file)
 
@@ -54,7 +58,17 @@ class DynamicDeserialize(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node=DynamicDeserialize()
+    
+    # if len(sys.argv) < 2:
+    #     print("Usage: ros2 run serialization_client dynamic_json_seserializer <config_file.yaml>")
+    #     return   
+
+    # config_file = sys.argv[1] if len(sys.argv) > 1 else 'config/config_mqtt_to_ros_bridge.yaml'
+    
+    package_share = get_package_share_directory('serialization_client')
+    default_config_file = os.path.join(package_share, 'config', 'config_mqtt_to_ros_bridge.yaml')
+    config_file = sys.argv[1] if len(sys.argv) > 1 else default_config_file
+    node=DynamicDeserialize(config_file)
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

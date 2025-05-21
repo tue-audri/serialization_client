@@ -1,0 +1,4 @@
+mqtt_to_ros:
+  - mqtt_topic: pingpong/external/traffic_light_groups
+    ros_topic: /pong/perception/traffic_light_recognition/traffic_light
+    msg_type: autoware_perception_msgs.msg.TrafficLightGroupArray

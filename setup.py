@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'dynamic_json_serializer = serialization_client.dynamic_json_serializer:main',
+            'dynamic_json_deserializer = serialization_client.dynamic_deserializer:main',
         ],
     },
 )

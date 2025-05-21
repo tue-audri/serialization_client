@@ -11,7 +11,8 @@ def gear_report_to_json(msg: GearReport) -> str:
             "sec": msg.stamp.sec,
             "nanosec": msg.stamp.nanosec
         },
-        "report": msg.report
+        "report": msg.report,
+        "thingId": "org.example:car3"
     }, indent=2)
 
 # Convert Velocity Report Object to json
@@ -26,7 +27,8 @@ def velocity_report_to_json(msg: VelocityReport) -> str:
         },
         "longitudinal_velocity": msg.longitudinal_velocity,
         "lateral_velocity": msg._lateral_velocity,
-        "heading_rate": msg.heading_rate
+        "heading_rate": msg.heading_rate,
+        "thingId": "org.example:car3"
     }, indent=2)
 
 # Convert Kinematic State Object to json
@@ -67,6 +69,7 @@ def kinematic_report_to_json(msg: Odometry):
             },
             "covariance": list(msg.twist.covariance)
         },
+        "thingId": "org.example:car3"
 
     },indent=3)
 
@@ -91,7 +94,8 @@ def traffic_light_group_array_to_json(msg: TrafficLightGroupArray)->str:
                 ]
             }
             for group in msg.traffic_light_groups
-        ]
+        ],
+        "thingId": "org.example:car3"
     }, indent=3)     
 
 # Convert Actuation Status
@@ -108,7 +112,8 @@ def actuation_report_to_json(msg: ActuationStatusStamped)->str:
             "accel_status": msg.status.accel_status,
             "brake_status": msg.status.brake_status,
             "steer_status": msg.status.steer_status 
-        }
+        },
+        "thingId": "org.example:car3"
     }, indent=3)
 
 # Convert Steering Status
@@ -118,7 +123,8 @@ def steering_report_to_json(msg: SteeringReport)->str:
             "sec": msg.stamp.sec,
             "nanosec": msg.stamp.nanosec
         },
-        "steering_tire_angle": msg.steering_tire_angle
+        "steering_tire_angle": msg.steering_tire_angle,
+        "thingId": "org.example:car3"
     }, indent=2)
 
 # Convert Control Mode
@@ -128,7 +134,8 @@ def control_mode_report_to_json(msg: ControlModeReport)->str:
             "sec": msg.stamp.sec,
             "nanosec": msg.stamp.nanosec
         },
-        "mode": msg.mode
+        "mode": msg.mode,
+        "thingId": "org.example:car3"
     }, indent=2)
 
 # Convert Hazard Light Status
@@ -138,7 +145,8 @@ def hazard_lights_report_to_json(msg: HazardLightsReport)->str:
             "sec": msg.stamp.sec,
             "nanosec": msg.stamp.nanosec
         },
-        "report": msg.report
+        "report": msg.report,
+        "thingId": "org.example:car3"
     }, indent=2)
 # Convert Turn Indicator Status
 def turn_indicators_report_to_json(msg: TurnIndicatorsReport)->str:
@@ -147,7 +155,8 @@ def turn_indicators_report_to_json(msg: TurnIndicatorsReport)->str:
             "sec": msg.stamp.sec,
             "nanosec": msg.stamp.nanosec
         },
-        "report": msg.report
+        "report": msg.report,
+        "thingId": "org.example:car3"
     }, indent=2)
 
 # Convert Battery Status

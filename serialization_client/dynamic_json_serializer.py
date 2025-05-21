@@ -1,3 +1,6 @@
+import sys
+import os
+from ament_index_python.packages import get_package_share_directory
 import rclpy
 from rclpy.node import Node
 import yaml
@@ -47,7 +50,12 @@ class DynamicSerializerNode(Node):
 
 def main():
     rclpy.init()
-    node = DynamicSerializerNode('/home/saurabh/Workspaces/serialization_client/serialization_client/config.yaml')
+
+    package_share = get_package_share_directory('serialization_client')
+    default_config_file = os.path.join(package_share, 'config', 'config_ros_to_mqtt_bridge.yaml')
+    config_file = sys.argv[1] if len(sys.argv) > 1 else default_config_file
+
+    node = DynamicSerializerNode(config_file)
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()

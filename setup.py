@@ -11,6 +11,8 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/config', ['config/config_mqtt_to_ros_bridge.yaml']),
+        ('share/' + package_name + '/config', ['config/config_ros_to_mqtt_bridge.yaml']),
+        
     ],
     install_requires=['setuptools'],
     zip_safe=True,

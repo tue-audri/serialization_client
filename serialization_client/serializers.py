@@ -1,6 +1,6 @@
 from autoware_vehicle_msgs.msg import GearReport, VelocityReport, SteeringReport, ControlModeReport, HazardLightsReport, TurnIndicatorsReport
 from nav_msgs.msg import Odometry
-from autoware_perception_msgs.msg import TrafficLightGroupArray, TrafficLightGroup,TrafficLightElement
+from autoware_perception_msgs.msg import TrafficLightGroupArray, TrafficLightGroup,TrafficLightElement, TrackedObjects
 from tier4_vehicle_msgs.msg import ActuationStatusStamped, BatteryStatus
 import json
 
@@ -151,3 +151,98 @@ def turn_indicators_report_to_json(msg: TurnIndicatorsReport)->str:
     }, indent=2)
 
 # Convert Battery Status
+
+# Convert Tracked Objects
+def tracked_objects_to_json(msg: TrackedObjects)->str:
+    return json.dumps({
+        "header" : {
+            "stamp": {
+                "sec": msg.header.stamp.sec,
+                "nanosec": msg.header.stamp.nanosec
+            },
+            "frame_id": msg.header.frame_id
+        },
+        "objects":[
+            {
+            "object_id":[int(b) for b in object.object_id.uuid],
+            "existance_probability" : object.existence_probability,
+            "classification": [
+                {
+                    "label": clas.label,
+                    "probability": clas.probability
+                }
+                for clas in object.classification
+            ],
+            "kinematics": {
+                "pose_with_covariance":{
+                    "pose":{
+                        "position":{
+                            "x": object.kinematics.pose_with_covariance.pose.position.x,
+                            "y": object.kinematics.pose_with_covariance.pose.position.y,
+                            "z": object.kinematics.pose_with_covariance.pose.position.z
+                        },
+                        "orientation":{
+                            "x": object.kinematics.pose_with_covariance.pose.orientation.x,
+                            "y": object.kinematics.pose_with_covariance.pose.orientation.y,
+                            "z": object.kinematics.pose_with_covariance.pose.orientation.z,
+                            "w": object.kinematics.pose_with_covariance.pose.orientation.w
+                        }
+                    },
+                    "covariariance": list(object.kinematics.pose_with_covariance.covariance)
+                },
+                "twist_with_covariance":{
+                    "twist":{
+                        "linear":{
+                            "x": object.kinematics.twist_with_covariance.twist.linear.x,
+                            "y": object.kinematics.twist_with_covariance.twist.linear.y,
+                            "z": object.kinematics.twist_with_covariance.twist.linear.z
+                        },
+                        "angular":{
+                            "x": object.kinematics.twist_with_covariance.twist.angular.x,
+                            "y": object.kinematics.twist_with_covariance.twist.angular.y,
+                            "z": object.kinematics.twist_with_covariance.twist.angular.z
+                        }
+                    },
+                    "covariance": list(object.kinematics.twist_with_covariance.covariance)
+                },
+                "acceleration_with_covariance":{
+                    "accel":{
+                        "linear":{
+                            "x": object.kinematics.acceleration_with_covariance.accel.linear.x,
+                            "y": object.kinematics.acceleration_with_covariance.accel.linear.y,
+                            "z": object.kinematics.acceleration_with_covariance.accel.linear.z
+                        },
+                        "angular":{
+                            "x": object.kinematics.acceleration_with_covariance.accel.angular.x,
+                            "y": object.kinematics.acceleration_with_covariance.accel.angular.y,
+                            "z": object.kinematics.acceleration_with_covariance.accel.angular.z
+                        }
+                    },
+                    "covariance": list(object.kinematics.acceleration_with_covariance.covariance) 
+                },
+                "orientation_availability": object.kinematics.orientation_availability,
+                "is_stationary": object.kinematics.is_stationary
+            },
+            "shape": {
+                "type": object.shape.type,
+                "footprint":{
+                    "points":[
+                        {
+                            "x": point.x,
+                            "y": point.y,
+                            "z": point.z
+                        }
+                        for point in object.shape.footprint.points 
+                    ]
+                },
+                "dimensions": {
+                    "x": object.shape.dimensions.x,
+                    "y": object.shape.dimensions.y,
+                    "z": object.shape.dimensions.z
+                }
+            }
+            }
+        for object in msg.objects
+        ]
+        
+    }, indent=3)

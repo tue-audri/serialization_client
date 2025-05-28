@@ -43,3 +43,8 @@ topics:
     type: autoware_perception_msgs.msg.TrafficLightGroupArray
     serializer: traffic_light_group_array_to_json
     mqtt_topic: pingpong/external/traffic_light_groups
+
+  - name: /perception/object_recognition/tracking/objects
+    type: autoware_perception_msgs.msg.TrackedObjects
+    serializer: tracked_objects_to_json
+    mqtt_topic: pingpong/tracked_objects

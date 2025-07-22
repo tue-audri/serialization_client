@@ -15,10 +15,14 @@ class DynamicSerializerNode(Node):
         
         # MQTT Setup
         self.mqtt_client = mqtt.Client()
-        self.mqtt_client.connect("localhost", 1884) # Replace with correct Broker IP and Port
+        self.mqtt_client.connect("localhost", 1883) # Replace with correct Broker IP and Port
 
         with open(config_path, 'r') as file:
             config = yaml.safe_load(file)
+
+        agent_id = config.get('agent_id', 'default_agent')
+        for topic in config['topics']:
+            topic['mqtt_topic'] = topic['mqtt_topic'].replace('{agent_id}', agent_id)
 
         for topic in config['topics']:
             topic_name = topic['name']

@@ -1,50 +1,47 @@
+agent_id: AV_Virtual_1
+
 topics:
   - name: /vehicle/status/gear_status
     type: autoware_vehicle_msgs.msg.GearReport
     serializer: gear_report_to_json
-    mqtt_topic: pingpong/gear_report 
+    mqtt_topic: pingpong/{agent_id}/gear_report 
 
   - name: /vehicle/status/velocity_status
     type: autoware_vehicle_msgs.msg.VelocityReport
     serializer: velocity_report_to_json
-    mqtt_topic: pingpong/velocity_report
+    mqtt_topic: pingpong/{agent_id}/velocity_report
 
   - name: /vehicle/status/actuation_status
     type: tier4_vehicle_msgs.msg.ActuationStatusStamped
     serializer: actuation_report_to_json
-    mqtt_topic: pingpong/actuation_report
+    mqtt_topic: pingpong/{agent_id}/actuation_report
   
   - name: /vehicle/status/steering_status
     type: autoware_vehicle_msgs.msg.SteeringReport
     serializer: steering_report_to_json
-    mqtt_topic: pingpong/steering_report
+    mqtt_topic: pingpong/{agent_id}/steering_report
   
   - name: /vehicle/status/control_mode
     type: autoware_vehicle_msgs.msg.ControlModeReport
     serializer: control_mode_report_to_json
-    mqtt_topic: pingpong/control_mode_report
+    mqtt_topic: pingpong/{agent_id}/control_mode_report
   
   - name: /vehicle/status/hazard_lights_status
     type: autoware_vehicle_msgs.msg.HazardLightsReport
     serializer: hazard_lights_report_to_json
-    mqtt_topic: pingpong/hazard_lights_report
+    mqtt_topic: pingpong/{agent_id}/hazard_lights_report
 
   - name: /vehicle/status/turn_indicators_status
     type: autoware_vehicle_msgs.msg.TurnIndicatorsReport
     serializer: turn_indicators_report_to_json
-    mqtt_topic: pingpong/turn_indicators_report
+    mqtt_topic: pingpong/{agent_id}/turn_indicators_report
 
   - name: /localization/kinematic_state
     type: nav_msgs.msg.Odometry
     serializer: kinematic_report_to_json
-    mqtt_topic: pingpong/kinematic_state
+    mqtt_topic: pingpong/{agent_id}/kinematic_state
 
   - name: /perception/traffic_light_recognition/external/traffic_signals
     type: autoware_perception_msgs.msg.TrafficLightGroupArray
     serializer: traffic_light_group_array_to_json
-    mqtt_topic: pingpong/external/traffic_light_groups
-
-  - name: /perception/object_recognition/tracking/objects
-    type: autoware_perception_msgs.msg.TrackedObjects
-    serializer: tracked_objects_to_json
-    mqtt_topic: pingpong/tracked_objects
+    mqtt_topic: pingpong/{agent_id}/external/traffic_light_groups

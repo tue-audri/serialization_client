@@ -4,6 +4,7 @@ from ament_index_python.packages import get_package_share_directory
 import rclpy
 from rclpy.node import Node
 import yaml
+import json
 import importlib
 from serialization_client import serializers
 import paho.mqtt.client as mqtt
@@ -23,6 +24,15 @@ class DynamicSerializerNode(Node):
         agent_id = config.get('agent_id', 'default_agent')
         for topic in config['topics']:
             topic['mqtt_topic'] = topic['mqtt_topic'].replace('{agent_id}', agent_id)
+
+        announcement_config = config.get("static_announcement", None)
+
+        if announcement_config:
+            mqtt_topic = announcement_config['mqtt_topic']
+            payload = json.dumps(announcement_config['payload'])
+            self.mqtt_client.publish(mqtt_topic,payload=payload, retain=True)
+            print(f"Published announcement to {mqtt_topic}")
+        
 
         for topic in config['topics']:
             topic_name = topic['name']

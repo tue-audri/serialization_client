@@ -15,7 +15,7 @@ class DynamicSerializerNode(Node):
         
         # MQTT Setup
         self.mqtt_client = mqtt.Client()
-        self.mqtt_client.connect("localhost", 1884) # Replace with correct Broker IP and Port
+        self.mqtt_client.connect("localhost", 1883) # Replace with correct Broker IP and Port
 
         with open(config_path, 'r') as file:
             config = yaml.safe_load(file)

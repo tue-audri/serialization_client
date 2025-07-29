@@ -20,7 +20,6 @@ setup(
     maintainer_email='152851798+subramanians1@users.noreply.github.com',
     description='A dynamic JSON Serializer Package that serializes and deserializes ROS2 messages for use with MQTT',
     license='TODO: License declaration',
-    tests_require=['pytest'],
     entry_points={
         'console_scripts': [
             'dynamic_json_serializer = serialization_client.dynamic_json_serializer:main',

@@ -36,7 +36,7 @@ class DynamicDeserialize(Node):
         self.mqtt_client = mqtt.Client()
         self.mqtt_client.on_connect = self.on_connect
         self.mqtt_client.on_message = self.on_message
-        self.mqtt_client.connect("localhost", 1884, 60) # Change as needed
+        self.mqtt_client.connect("localhost", 1883, 60) # Change as needed
         self.mqtt_client.loop_start()
 
 

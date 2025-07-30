@@ -60,6 +60,6 @@ static_announcement:
       "pingpong/AV_Virtual_1/hazard_lights_report",
       "pingpong/AV_Virtual_1/turn_indicators_report",
       "pingpong/AV_Virtual_1/kinematic_state",
-      "pingpong/AV_Virtual_1/external/traffic_light_groups"
+      #"pingpong/AV_Virtual_1/external/traffic_light_groups"
 
     ]

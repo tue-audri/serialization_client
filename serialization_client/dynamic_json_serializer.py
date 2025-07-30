@@ -25,13 +25,10 @@ class DynamicSerializerNode(Node):
         for topic in config['topics']:
             topic['mqtt_topic'] = topic['mqtt_topic'].replace('{agent_id}', agent_id)
 
-        announcement_config = config.get("static_announcement", None)
+        self.announcement_config = config.get("static_announcement", None)
 
-        if announcement_config:
-            mqtt_topic = announcement_config['mqtt_topic']
-            payload = json.dumps(announcement_config['payload'])
-            self.mqtt_client.publish(mqtt_topic,payload=payload, retain=True)
-            print(f"Published announcement to {mqtt_topic}")
+        
+        self.create_timer(5.0,self.publish_announcement)
         
 
         for topic in config['topics']:
@@ -61,6 +58,13 @@ class DynamicSerializerNode(Node):
             # Create subscription
             self.create_subscription(msg_type, topic_name, callback, 10)
             self.get_logger().info(f"Subscribed to {topic_name} with type {msg_type_str}")
+
+    def publish_announcement(self):
+            if self.announcement_config:
+                mqtt_topic = self.announcement_config['mqtt_topic']
+                payload = json.dumps(self.announcement_config['payload'])
+                self.mqtt_client.publish(mqtt_topic,payload=payload, retain=True)
+                print(f"Published announcement to {mqtt_topic}")
 
 def main():
     rclpy.init()

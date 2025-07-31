@@ -10,6 +10,9 @@
   <depend>rclpy</depend>
   <depend>std_msgs</depend>
   <depend>paho-mqtt</depend>
+  <build_depend>autoware_localization_msgs</build_depend>
+  <build_depend>autoware_perception_msgs</build_depend>
+  <build_depend>autoware_vehicle_msgs</build_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

@@ -53,7 +53,7 @@ static_announcement:
     make: "Lexus"
     model: "Some_model"
     publications: ["pingpong/AV_Virtual_1/gear_report",
-      "pingpong/AV_Virtual_1/velocity_report",
+      "pingpong/{agent_id}/velocity_report",
       "pingpong/AV_Virtual_1/actuation_report",
       "pingpong/AV_Virtual_1/steering_report",
       "pingpong/AV_Virtual_1/control_mode_report",

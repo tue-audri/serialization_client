@@ -46,6 +46,11 @@ topics:
     serializer: traffic_light_group_array_to_json
     mqtt_topic: pingpong/{agent_id}/external/traffic_light_groups
 
+  - name: /perception/object_recognition/tracking/objects
+    type: autoware_perception_msgs.msg.TrackedObjects
+    serializer: tracked_objects_to_json
+    mqtt_topic: pingpong/{agent_id}/tracked_objects
+
 static_announcement:
   mqtt_topic: pingpong/AV_Virtual_1/static_announcement
   payload:
@@ -60,6 +65,7 @@ static_announcement:
       "pingpong/AV_Virtual_1/hazard_lights_report",
       "pingpong/AV_Virtual_1/turn_indicators_report",
       "pingpong/AV_Virtual_1/kinematic_state",
+      "pingpong/AV_Virtual_1/tracked_objects"
       #"pingpong/AV_Virtual_1/external/traffic_light_groups"
 
     ]

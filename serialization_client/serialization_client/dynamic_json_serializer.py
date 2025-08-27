@@ -13,6 +13,9 @@ class DynamicSerializerNode(Node):
     def __init__(self,config_path):
         super().__init__('dynamic_json_serializer_node')
 
+        # URDF path
+        package_share = get_package_share_directory('serialization_client')
+        sensor_calib = os.path.join(package_share, 'config', 'prius_sensor_kit.yaml')
         
         # MQTT Setup
         self.mqtt_client = mqtt.Client()
@@ -21,11 +24,17 @@ class DynamicSerializerNode(Node):
         with open(config_path, 'r') as file:
             config = yaml.safe_load(file)
 
+        with open(sensor_calib, 'r') as file:
+            calib = yaml.safe_load(file)
+
         agent_id = config.get('agent_id', 'default_agent')
         for topic in config['topics']:
             topic['mqtt_topic'] = topic['mqtt_topic'].replace('{agent_id}', agent_id)
 
         self.announcement_config = config.get("static_announcement", None)
+        payload = self.announcement_config.get("payload", None)
+        payload["urdf"] = calib
+        self.announcement_config["payload"] = payload
 
         
         self.create_timer(5.0,self.publish_announcement)

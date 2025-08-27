@@ -12,6 +12,7 @@ setup(
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/config', ['config/config_mqtt_to_ros_bridge.yaml']),
         ('share/' + package_name + '/config', ['config/config_ros_to_mqtt_bridge.yaml']),
+        ('share/' + package_name + '/config', ['config/prius_sensor_kit.yaml'])
         
     ],
     install_requires=['setuptools'],

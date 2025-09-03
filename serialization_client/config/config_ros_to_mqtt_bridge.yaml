@@ -50,8 +50,3 @@ agent:
       type: nav_msgs.msg.Odometry
       serializer: kinematic_report_to_json
       mqtt_topic: pingpong/{agent_id}/kinematic_state
- 
-    - name: /perception/traffic_light_recognition/external/traffic_signals
-      type: autoware_perception_msgs.msg.TrafficLightGroupArray
-      serializer: traffic_light_group_array_to_json
-      mqtt_topic: pingpong/{agent_id}/external/traffic_light_groups

@@ -20,9 +20,22 @@ class DynamicSerializerNode(Node):
 
         self.transforms = [] # TF cache
         self.current_kinematic_state = None # Store current kinematic state
+        self.current_kinematic_state = {
+                "pose": {
+                    'x': 280,
+                    'y': 48.21,
+                    'z': 10.6
+                },
+                "orientation":{
+                    'x': 0,
+                    'y':0,
+                    'z': 0,
+                    'w': 0
+                }
+        }
 
         qos = QoSProfile(
-            depth=1,  # keep last sample
+            depth=10,  # keep last sample
             durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
             reliability=QoSReliabilityPolicy.RELIABLE
         )
@@ -109,10 +122,10 @@ class DynamicSerializerNode(Node):
                 payload = json.dumps(self.announcement_config['payload'])
                 self.mqtt_client.publish(mqtt_topic,payload=payload, retain=True)
                 print(f"Published announcement to {mqtt_topic}")
-                print(f"Published pose {self.current_kinematic_state}")
+                print(f"Published TF {self.transforms}")
 
     def tf_callback(self, msg: TFMessage):
-        self.transforms.clear()
+        # self.transforms.clear()
         print("Hello from tf_callback")
         for transform in msg.transforms:
             parent = transform.header.frame_id

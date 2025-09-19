@@ -2,6 +2,7 @@ from autoware_perception_msgs.msg import TrafficLightGroupArray, TrafficLightGro
 from builtin_interfaces.msg import Time
 from nav_msgs.msg import Odometry
 from tier4_simulation_msgs.msg import DummyObject
+from rclpy.clock import Clock
 
 # Generic Deserializer
 def generic_deserialize(json_data, msg_type, type_hints: dict = None):
@@ -27,6 +28,17 @@ def generic_deserialize(json_data, msg_type, type_hints: dict = None):
                 setattr(msg, field_name, value)
         else:
             setattr(msg, field_name, value)
+
+    # Override header timestamp with current ROS time if applicable
+    try:
+        now_time_msg = Clock().now().to_msg()
+        if hasattr(msg, 'header') and hasattr(msg.header, 'stamp'):
+            msg.header.stamp = now_time_msg
+        elif hasattr(msg, 'stamp') and msg_type.__name__ == 'Header':
+            msg.stamp = now_time_msg
+    except Exception:
+        # If getting current time fails, silently proceed with deserialized values
+        pass
 
     return msg
 

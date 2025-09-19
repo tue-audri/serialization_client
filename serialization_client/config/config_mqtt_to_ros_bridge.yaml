@@ -2,3 +2,7 @@ mqtt_to_ros:
   - mqtt_topic: pingpong/external/traffic_light_groups
     ros_topic: /pong/perception/traffic_light_recognition/traffic_light
     msg_type: autoware_perception_msgs.msg.TrafficLightGroupArray
+
+  - mqtt_topic: pingpong/V2X/dummy_objects
+    ros_topic: /pong/simulation/dummy_perception_publisher/object_info
+    msg_type: tier4_simulation_msgs.msg.DummyObject

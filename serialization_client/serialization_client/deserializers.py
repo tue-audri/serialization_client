@@ -1,6 +1,7 @@
 from autoware_perception_msgs.msg import TrafficLightGroupArray, TrafficLightGroup, TrafficLightElement
 from builtin_interfaces.msg import Time
 from nav_msgs.msg import Odometry
+from tier4_simulation_msgs.msg import DummyObject
 
 # Generic Deserializer
 def generic_deserialize(json_data, msg_type, type_hints: dict = None):

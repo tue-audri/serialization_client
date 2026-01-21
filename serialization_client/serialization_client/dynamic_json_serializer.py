@@ -120,7 +120,7 @@ class DynamicSerializerNode(Node):
             if self.announcement_config:
                 mqtt_topic = self.announcement_config['mqtt_topic']
                 payload = json.dumps(self.announcement_config['payload'])
-                self.mqtt_client.publish(mqtt_topic,payload=payload, retain=True)
+                self.mqtt_client.publish(mqtt_topic,payload=payload)
                 print(f"Published announcement to {mqtt_topic}")
                 print(f"Published TF {self.transforms}")
 
@@ -148,6 +148,7 @@ class DynamicSerializerNode(Node):
                     }
                 }
                 self.transforms.append(tf_dict)
+                self.transforms = []
         self.get_logger().info(f"Cached {len(self.transforms)} static TFs")
 
     def store_kinematic_data(self, msg):

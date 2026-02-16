@@ -4,12 +4,21 @@ from ament_index_python.packages import get_package_share_directory
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy
+from rclpy.duration import Duration
 import yaml
 import json
 import importlib
 from serialization_client import serializers
 from tf2_msgs.msg import TFMessage
+from tf2_ros import Buffer, TransformListener
 import paho.mqtt.client as mqtt
+
+# import debugpy
+
+# debugpy.listen(("0.0.0.0", 5678))
+# print("Waiting for VS Code debugger...")
+# debugpy.wait_for_client()
+# print("Debugger attached.")
 
 class DynamicSerializerNode(Node):
     def __init__(self,config_path):
@@ -18,7 +27,7 @@ class DynamicSerializerNode(Node):
         with open(config_path, 'r') as file:
             config = yaml.safe_load(file)
 
-        self.transforms = [] # TF cache
+        self.transforms = []
         self.current_kinematic_state = None # Store current kinematic state
         self.current_kinematic_state = {
                 "pose": {
@@ -40,13 +49,14 @@ class DynamicSerializerNode(Node):
             reliability=QoSReliabilityPolicy.RELIABLE
         )
 
-        # subscribe to tf_static
-        self.create_subscription(TFMessage, '/tf_static', self.tf_callback, qos)
-        self.get_logger().info(f"Subscribed to tf_static with type TFMessage")
+        # ------ TF listener -----
+        # self.create_subscription(TFMessage, '/tf_static', self.tf_callback, qos)
+        # self.get_logger().info(f"Subscribed to tf_static with type TFMessage")
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer,self)
         
-
+        # ----- MQTT -----
         mqtt_config = config.get("mqtt", None)
-
         if mqtt_config:
             hostname = mqtt_config.get("hostname", None)
             port = mqtt_config.get("port", None)
@@ -56,17 +66,20 @@ class DynamicSerializerNode(Node):
         else:
             self.get_logger().info("MQTT config details not found")
 
-
-        agent_id = config.get("agent",{}).get("details",{}).get('agent_id', 'default_agent')
+        # ----- TF -----
+        self.sensors_config = config.get("agent", {}).get("details", {}).get("sensors", None)
+        self.sensors = []    
         
 
+        # ----- Replace Topic Placeholders -----
+        agent_id = config.get("agent",{}).get("details",{}).get('agent_id', 'default_agent')
         for key, topic in config['agent']['static_topics'].items():
             if isinstance(topic,str):
-                config["agent"]["static_topics"][key] = topic.format(agent_id = agent_id)
-            
+                config["agent"]["static_topics"][key] = topic.format(agent_id = agent_id)           
         for topic in config['agent']['ros_topics']:
-            topic['mqtt_topic'] = topic['mqtt_topic'].replace('{agent_id}', agent_id)     
+            topic['mqtt_topic'] = topic['mqtt_topic'].replace('{agent_id}', agent_id)
 
+        # ----- Create ROS2 subscriptions -----
         for topic in config['agent']['ros_topics']:
             topic_name = topic['name']
             msg_type_str = topic['type']
@@ -98,7 +111,7 @@ class DynamicSerializerNode(Node):
             self.create_subscription(msg_type, topic_name, callback, 10)
             self.get_logger().info(f"Subscribed to {topic_name} with type {msg_type_str}")
 
-        # Generate static announcement
+        # ----- Generate and publish static announcement -----
         self.announcement_config = {"mqtt_topic": config['agent']['static_topics']['mqtt_topic'],
                                "payload": {
                                    "agent_id": config['agent']['details']['agent_id'],
@@ -106,6 +119,7 @@ class DynamicSerializerNode(Node):
                                    "model": config['agent']['details']['model'],
                                    "pose": self.current_kinematic_state,
                                    "urdf": self.transforms,
+                                   "sensors": self.sensors,
                                    "publications": []
                                }
                             }
@@ -114,15 +128,93 @@ class DynamicSerializerNode(Node):
             mqtt_topic = topic.get("mqtt_topic")
             if mqtt_topic:
                 self.announcement_config["payload"]["publications"].append(mqtt_topic)
-        self.create_timer(5.0,self.publish_announcement)
 
+        # ----- Startup timers -----
+        self.started = False
+        self.startup_timer = self.create_timer(1.0, self.startup_step)
+        self.publish_timer = self.create_timer(5.0,self.publish_announcement)
+
+    def startup_step(self):
+        if self.started:
+            return
+        
+        if not self.all_transforms_available():
+            self.get_logger().info("Waiting for TF...")
+            return
+        
+        self.sensors = self.resolve_all_transforms()
+        self.announcement_config["payload"]["sensors"] = self.sensors
+
+        self.started = True
+        self.startup_timer.cancel()
+
+        self.get_logger().info("Startup complete - TF resolved")
+
+    def all_transforms_available(self):
+        for sensor_list in self.sensors_config:
+            sensor_type = list(sensor_list.keys())[0]
+            for sensor in sensor_list[sensor_type]:
+
+                ok = self.tf_buffer.can_transform(
+                    sensor.get("parent_frame", ""),
+                    sensor.get("sensor_frame", ""),
+                    rclpy.time.Time(),
+                    timeout=Duration(seconds=0.2)
+                )
+
+                if not ok:
+                    self.get_logger().warn(
+                        "Missing TF:")
+                    return False
+                
+            return True
+                
+
+    def resolve_all_transforms(self):
+        results = []
+
+        for sensor_list in self.sensors_config:
+            sensor_type = list(sensor_list.keys())[0]
+            for sensor in sensor_list[sensor_type]:
+                tf = self.tf_buffer.lookup_transform(
+                    sensor.get("parent_frame", ""),
+                    sensor.get("sensor_frame", ""),
+                    rclpy.time.Time()
+                )
+
+                results.append(self.tf_to_dict(tf))
+
+        return results
+    
+    def tf_to_dict(self,tf):
+        t = tf.transform.translation
+        q = tf.transform.rotation
+
+        return {
+            "parent": tf.header.frame_id,
+            "child": tf.child_frame_id,
+            "translation": {
+                "x": t.x,
+                "y": t.y,
+                "z": t.z
+            },
+            "rotation": {
+                "x": q.x,
+                "y": q.y,
+                "z": q.z,
+                "w": q.w
+            }
+        }
     def publish_announcement(self):
-            if self.announcement_config:
-                mqtt_topic = self.announcement_config['mqtt_topic']
-                payload = json.dumps(self.announcement_config['payload'])
-                self.mqtt_client.publish(mqtt_topic,payload=payload)
-                print(f"Published announcement to {mqtt_topic}")
-                print(f"Published TF {self.transforms}")
+            if not self.started:
+                self.get_logger().info("Publish skipped - startup not ready")
+                return
+            
+            mqtt_topic = self.announcement_config['mqtt_topic']
+            payload = json.dumps(self.announcement_config['payload'])
+            self.mqtt_client.publish(mqtt_topic,payload=payload)
+            print(f"Published announcement to {mqtt_topic}")
+            # print(f"Published transforms {self.sensors_config}")
 
     def tf_callback(self, msg: TFMessage):
         # self.transforms.clear()
@@ -148,7 +240,7 @@ class DynamicSerializerNode(Node):
                     }
                 }
                 self.transforms.append(tf_dict)
-                self.transforms = []
+                # self.transforms = []
         self.get_logger().info(f"Cached {len(self.transforms)} static TFs")
 
     def store_kinematic_data(self, msg):

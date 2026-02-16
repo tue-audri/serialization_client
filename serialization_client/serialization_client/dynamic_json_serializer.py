@@ -171,18 +171,20 @@ class DynamicSerializerNode(Node):
                 
 
     def resolve_all_transforms(self):
-        results = []
+        results = {}
 
         for sensor_list in self.sensors_config:
             sensor_type = list(sensor_list.keys())[0]
+            results[sensor_type] = []
             for sensor in sensor_list[sensor_type]:
+                
                 tf = self.tf_buffer.lookup_transform(
                     sensor.get("parent_frame", ""),
                     sensor.get("sensor_frame", ""),
                     rclpy.time.Time()
                 )
 
-                results.append(self.tf_to_dict(tf))
+                results[sensor_type].append(self.tf_to_dict(tf))
 
         return results
     

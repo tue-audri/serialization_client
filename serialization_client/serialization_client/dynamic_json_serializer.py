@@ -151,8 +151,20 @@ class DynamicSerializerNode(Node):
         self.get_logger().info("Startup complete - TF resolved")
 
     def all_transforms_available(self):
+        ok = self.tf_buffer.can_transform(
+            "base_link", 
+            "sensor_kit_base_link",
+            rclpy.time.Time(),
+            timeout=Duration(seconds=0.2) 
+        )
+        if not ok:
+            self.get_logger().warn(
+                "Missing base_link transform"
+            )
+            return False
         for sensor_list in self.sensors_config:
             sensor_type = list(sensor_list.keys())[0]
+
             for sensor in sensor_list[sensor_type]:
 
                 ok = self.tf_buffer.can_transform(
@@ -172,19 +184,36 @@ class DynamicSerializerNode(Node):
 
     def resolve_all_transforms(self):
         results = {}
+        results['sensor_kit'] = []
+        tf_dict = {}
+        tf = self.tf_buffer.lookup_transform(
+            "base_link",
+            "sensor_kit_base_link",
+            rclpy.time.Time()
+        )
+        tf_dict["name"] = "sensor_kit_base_link"
+        tf_dict["transform"] = self.tf_to_dict(tf)
+        results['sensor_kit'].append(tf_dict)
 
         for sensor_list in self.sensors_config:
             sensor_type = list(sensor_list.keys())[0]
             results[sensor_type] = []
             for sensor in sensor_list[sensor_type]:
-                
+                sensor_dict = {}
+                sensor_name = sensor.get("name", "unknown_sensor")
+                sensor_frame = sensor.get("sensor_frame", "unknown_frame")
+                parent_frame = sensor.get("parent_frame", "unknown_parent")                
                 tf = self.tf_buffer.lookup_transform(
                     sensor.get("parent_frame", ""),
                     sensor.get("sensor_frame", ""),
                     rclpy.time.Time()
                 )
+                sensor_dict["name"] = sensor_name
+                # sensor_dict["frame"] = sensor_frame
+                # sensor_dict["parent_frame"] = parent_frame
+                sensor_dict["transform"] = self.tf_to_dict(tf)
 
-                results[sensor_type].append(self.tf_to_dict(tf))
+                results[sensor_type].append(sensor_dict)
 
         return results
     

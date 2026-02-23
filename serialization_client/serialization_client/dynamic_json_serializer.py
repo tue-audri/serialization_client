@@ -21,10 +21,20 @@ import paho.mqtt.client as mqtt
 # print("Debugger attached.")
 
 class DynamicSerializerNode(Node):
-    def __init__(self,config_path):
+    def __init__(self):
         super().__init__('dynamic_json_serializer_node')
+
+        package_share = get_package_share_directory('serialization_client')
+        # Default parameters
+        default_config_file = os.path.join(package_share, 'config', 'config_ros_to_mqtt_bridge.yaml')
+        # Declare ROS2 parameters
+        self.declare_parameter('config_path', default_config_file)
+        self.declare_parameter('no_transforms', False)
+
+        self.config_path = self.get_parameter('config_path').get_parameter_value().string_value
+        self.no_transforms = self.get_parameter('no_transforms').get_parameter_value().bool_value
         # Load config file
-        with open(config_path, 'r') as file:
+        with open(self.config_path, 'r') as file:
             config = yaml.safe_load(file)
 
         self.transforms = []
@@ -131,7 +141,12 @@ class DynamicSerializerNode(Node):
 
         # ----- Startup timers -----
         self.started = False
-        self.startup_timer = self.create_timer(1.0, self.startup_step)
+
+        if not self.no_transforms:
+            self.startup_timer = self.create_timer(1.0, self.startup_step)
+        else:
+            self.get_logger().info("Transform resolution disabled (--no_transforms)")
+            self.started = True
         self.publish_timer = self.create_timer(5.0,self.publish_announcement)
 
     def startup_step(self):
@@ -298,12 +313,7 @@ class DynamicSerializerNode(Node):
 
 def main():
     rclpy.init()
-
-    package_share = get_package_share_directory('serialization_client')
-    default_config_file = os.path.join(package_share, 'config', 'config_ros_to_mqtt_bridge.yaml')
-    config_file = sys.argv[1] if len(sys.argv) > 1 else default_config_file
-
-    node = DynamicSerializerNode(config_file)
+    node = DynamicSerializerNode()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()

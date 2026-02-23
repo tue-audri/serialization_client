@@ -1,6 +1,11 @@
 from setuptools import find_packages, setup
+from glob import glob
+import os
 
 package_name = 'serialization_client'
+data_files = [
+    ('share/serialization_client/config', glob('config/*.yaml')),
+]
 
 setup(
     name=package_name,

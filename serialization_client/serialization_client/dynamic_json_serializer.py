@@ -37,7 +37,6 @@ class DynamicSerializerNode(Node):
         with open(self.config_path, 'r') as file:
             config = yaml.safe_load(file)
 
-        self.transforms = []
         self.current_kinematic_state = None # Store current kinematic state
         self.current_kinematic_state = {
                 "pose": {
@@ -78,7 +77,7 @@ class DynamicSerializerNode(Node):
 
         # ----- TF -----
         self.sensors_config = config.get("agent", {}).get("details", {}).get("sensors", None)
-        self.sensors = []    
+        self.transforms = []    
         
 
         # ----- Replace Topic Placeholders -----
@@ -128,8 +127,7 @@ class DynamicSerializerNode(Node):
                                    "make": config['agent']['details']['make'],
                                    "model": config['agent']['details']['model'],
                                    "pose": self.current_kinematic_state,
-                                   "urdf": self.transforms,
-                                   "sensors": self.sensors,
+                                   "agent_transforms": self.transforms,
                                    "publications": []
                                }
                             }
@@ -157,8 +155,8 @@ class DynamicSerializerNode(Node):
             self.get_logger().info("Waiting for TF...")
             return
         
-        self.sensors = self.resolve_all_transforms()
-        self.announcement_config["payload"]["sensors"] = self.sensors
+        self.transforms = self.resolve_all_transforms()
+        self.announcement_config["payload"]["agent_transforms"] = self.transforms
 
         self.started = True
         self.startup_timer.cancel()
